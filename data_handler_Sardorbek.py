@@ -118,6 +118,7 @@ classifiers = {name: make_pipeline(tree_pipe, model) for name, model in classifi
 results = pd.DataFrame({'Model': [], "Accuracy Score": [], "Balanced Accuracy score": [], "Time": []})
 
 
+
 for model_name, model in classifiers.items():
     start_time = time.time()
 
