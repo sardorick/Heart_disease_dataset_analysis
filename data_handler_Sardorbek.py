@@ -164,3 +164,16 @@ print(results_ord)
 7  Logistic Regression       86.885246                86.328976  0.019947
 8            Ada Boost       85.245902                85.239651  0.076826
 """
+# MEDIAN
+"""
+                 Model  Accuracy Score  Balanced Accuracy score      Time
+0            Ada Boost       91.803279                91.503268  0.088764
+1        Random Forest       86.885246                87.091503  0.178659
+2          Extra Trees       86.885246                86.710240  0.107744
+3              XGBoost       86.885246                86.710240  0.112697
+4             Catboost       86.885246                86.710240  2.147449
+5    Gradient Boosting       85.245902                85.239651  0.087765
+6             LightGBM       85.245902                85.239651  0.076795
+7  Logistic Regression       83.606557                83.006536  0.017951
+8        Decision Tree       78.688525                78.976035  0.012965
+"""
