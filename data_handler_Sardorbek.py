@@ -51,11 +51,11 @@ def data_enhance(data):
     org_data = data
     for sex in data['sex'].unique():
         sex_data = org_data[org_data['sex']==sex]
-        age_std = sex_data['age'].median()
-        trtbps_std = sex_data['trtbps'].median()
-        chol_std = sex_data['chol'].median()
-        thalachh_std = sex_data['thalachh'].median()
-        oldpeak_std = sex_data['oldpeak'].median()
+        age_std = sex_data['age'].std()
+        trtbps_std = sex_data['trtbps'].std()
+        chol_std = sex_data['chol'].std()
+        thalachh_std = sex_data['thalachh'].std()
+        oldpeak_std = sex_data['oldpeak'].std()
         for i in org_data[org_data['sex']==sex].index:
             if np.random.randint(2) == 1:
                 org_data['age'].values[i] += age_std/10
@@ -134,9 +134,9 @@ for model_name, model in classifiers.items():
                             "Balanced Accuracy score": balanced_accuracy_score(y_val, predics)*100,
                             "Time": total_time}, ignore_index=True)
 
-results_ord = results.sort_values(by=['Accuracy Score'], ascending=False, ignore_index=True)
+results_order = results.sort_values(by=['Accuracy Score'], ascending=False, ignore_index=True)
 
-print(results_ord)
+print(results_order)
 
 # STD
 """
@@ -177,4 +177,18 @@ print(results_ord)
 6             LightGBM       85.245902                85.239651  0.076795
 7  Logistic Regression       83.606557                83.006536  0.017951
 8        Decision Tree       78.688525                78.976035  0.012965
+"""
+
+# Without enhancement
+"""
+                 Model  Accuracy Score  Balanced Accuracy score      Time
+0          Extra Trees       85.245902                84.477124  0.112150
+1  Logistic Regression       85.245902                84.477124  0.030931
+2            Ada Boost       83.606557                83.006536  0.078821
+3             Catboost       83.606557                82.625272  2.205500
+4        Random Forest       80.327869                79.302832  0.189494
+5    Gradient Boosting       78.688525                78.213508  0.082811
+6              XGBoost       78.688525                77.832244  0.111701
+7        Decision Tree       75.409836                76.416122  0.013963
+8             LightGBM       75.409836                74.891068  0.070812
 """
