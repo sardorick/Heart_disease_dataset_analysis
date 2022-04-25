@@ -1,3 +1,4 @@
+from ast import Or
 from multiprocessing import Pipe
 import numpy as np
 import pandas as pd
@@ -46,17 +47,20 @@ data = pd.read_csv(r'data\heart.csv')
 x = data.drop(['output'], axis=1) # features - train and val data
 y = data['output'] # target
 
-vals = ['age', 'trtbps', 'chol', 'thalachh','oldpeak']
+num_vals = ['age', 'trtbps', 'chol', 'thalachh','oldpeak']
+cat_vals = ['sex', 'cp', 'fbs', 'restecg', 'exng', 'slp', 'caa', 'thall']
 x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=0)
 
-print(x_train)
-print(y_train)
-scaler_pipeline = Pipeline([
+# print(x_train)
+# print(y_train)
+num_pipeline = Pipeline([
     ('imputer', SimpleImputer(strategy='constant', fill_value=-999)),
     ('scaler', StandardScaler())
 ])
+cat_pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='most_frequent'))])
 
-tree_pipe = ColumnTransformer(['num', scaler_pipeline, vals], remainder='passthrough')
+tree_pipe = ColumnTransformer([('num', num_pipeline, num_vals), ('cat', cat_pipeline, cat_vals)], remainder='passthrough')
 
 classifiers = {
     "Decision Tree": DecisionTreeClassifier(random_state=0),
@@ -76,21 +80,21 @@ classifiers = {name: make_pipeline(tree_pipe, model) for name, model in classifi
 results = pd.DataFrame({'Model': [], "Accuracy Score": [], "Balanced Accuracy score": [], "Time": []})
 
 
-# for model_name, model in classifiers.items():
-#     start_time = time.time()
+for model_name, model in classifiers.items():
+    start_time = time.time()
 
-#     model.fit(x_train, y_train)
+    model.fit(x_train, y_train)
 
-#     predics = model.predict(x_val)
-#     total_time = time.time() - start_time
+    predics = model.predict(x_val)
+    total_time = time.time() - start_time
 
 
-#     results = results.append({"Model": model_name,
-#                             "Accuracy": accuracy_score(y_val, predics)*100,
-#                             "Balanced Accuracy": balanced_accuracy_score(y_val, predics)*100,
-#                             "Time": total_time}, ignore_index=True)
+    results = results.append({"Model": model_name,
+                            "Accuracy Score": accuracy_score(y_val, predics)*100,
+                            "Balanced Accuracy score": balanced_accuracy_score(y_val, predics)*100,
+                            "Time": total_time}, ignore_index=True)
 
-# results_ord = results.sort_values(by=['Accuracy'], ascending=False, ignore_index=True)
+results_ord = results.sort_values(by=['Accuracy Score'], ascending=False, ignore_index=True)
 
-# print(results_ord)
+print(results_ord)
 
