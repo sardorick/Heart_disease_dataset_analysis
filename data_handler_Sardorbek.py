@@ -144,7 +144,19 @@ for model_name, model in classifiers.items():
 
 results_order = results.sort_values(by=['Accuracy Score'], ascending=False, ignore_index=True)
 
-print(results_order)
+def get_inputs():
+    pass
+
+def predictor():
+
+    best_model = classifiers.get("Extra Trees")
+
+    best_model.fit(x_train, y_train)
+
+    test_pred = best_model.predict(inps)
+    pass
+
+
 
 # STD
 """
