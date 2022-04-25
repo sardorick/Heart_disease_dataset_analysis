@@ -49,6 +49,8 @@ y = data['output'] # target
 vals = ['age', 'trtbps', 'chol', 'thalachh','oldpeak']
 x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=0)
 
+print(x_train)
+print(y_train)
 scaler_pipeline = Pipeline([
     ('imputer', SimpleImputer(strategy='constant', fill_value=-999)),
     ('scaler', StandardScaler())
@@ -74,21 +76,21 @@ classifiers = {name: make_pipeline(tree_pipe, model) for name, model in classifi
 results = pd.DataFrame({'Model': [], "Accuracy Score": [], "Balanced Accuracy score": [], "Time": []})
 
 
-for model_name, model in classifiers.items():
-    start_time = time.time()
+# for model_name, model in classifiers.items():
+#     start_time = time.time()
 
-    model.fit(x_train, y_train)
+#     model.fit(x_train, y_train)
 
-    predics = model.predict(x_val)
-    total_time = time.time() - start_time
+#     predics = model.predict(x_val)
+#     total_time = time.time() - start_time
 
 
-    results = results.append({"Model": model_name,
-                            "Accuracy": accuracy_score(y_val, predics)*100,
-                            "Balanced Accuracy": balanced_accuracy_score(y_val, predics)*100,
-                            "Time": total_time}, ignore_index=True)
+#     results = results.append({"Model": model_name,
+#                             "Accuracy": accuracy_score(y_val, predics)*100,
+#                             "Balanced Accuracy": balanced_accuracy_score(y_val, predics)*100,
+#                             "Time": total_time}, ignore_index=True)
 
-results_ord = results.sort_values(by=['Accuracy'], ascending=False, ignore_index=True)
+# results_ord = results.sort_values(by=['Accuracy'], ascending=False, ignore_index=True)
 
-print(results_ord)
+# print(results_ord)
 
