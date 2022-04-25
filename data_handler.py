@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 import time
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.metrics import accuracy_score, balanced_accuracy_score, plot_confusion_matrix
-
+import matplotlib.pyplot as plt
 
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -23,13 +23,30 @@ from sklearn.linear_model import LogisticRegression
 
 
 data = pd.read_csv(r'data\heart.csv')
+# (data.corr()['output'].sort_values().plot.barh())
+(data.corr()['output'].abs().sort_values().plot.barh())
+# plt.show()
+# exng       -0.436757
+# oldpeak    -0.430696
+# caa        -0.391724
+# thall      -0.344029
+# sex        -0.280937
+# age        -0.225439
+# trtbps     -0.144931
+# chol       -0.085239
+# fbs        -0.028046
+# restecg     0.137230
+# slp         0.345877
+# thalachh    0.421741
+# cp          0.433798
+# output      1.000000
+
 
 # print(data.isnull().sum()) - no missing data
-
 x = data.drop(['output'], axis=1) # features - train and val data
 y = data['output'] # target
 
-vals = ['age', 'cp', 'trtbps', 'chol', 'thalachh', 'oldpeak', 'slp', 'caa', 'thall']
+vals = ['age', 'trtbps', 'chol', 'thalachh','oldpeak']
 x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=0)
 
 scaler_pipeline = Pipeline([
