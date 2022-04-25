@@ -136,8 +136,18 @@ for model_name, model in classifiers.items():
 
 results_order = results.sort_values(by=['Accuracy Score'], ascending=False, ignore_index=True)
 
-print(results_order)
+# print(results_order)
 
+def predictor(features):
+
+    best_model = classifiers.get("Extra Trees")
+
+    best_model.fit(x_train, y_train)
+
+    preds = best_model.predict(features)
+    return preds
+
+    
 # STD
 """
                  Model  Accuracy Score  Balanced Accuracy score      Time
