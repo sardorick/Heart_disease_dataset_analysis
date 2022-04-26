@@ -23,7 +23,7 @@ from catboost import CatBoostClassifier
 from sklearn.linear_model import LogisticRegression
 
 
-data = pd.read_csv(r'data\heart.csv')
+data = pd.read_csv()
 # (data.corr()['output'].sort_values().plot.barh())
 (data.corr()['output'].abs().sort_values().plot.barh())
 # plt.show()
