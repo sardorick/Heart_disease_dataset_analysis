@@ -1,11 +1,11 @@
-
+from ast import Or
 from multiprocessing import Pipe
 import numpy as np
 import pandas as pd
 from scipy import rand
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, PowerTransformer, OrdinalEncoder, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import time
 from sklearn.pipeline import Pipeline, make_pipeline
@@ -23,7 +23,7 @@ from catboost import CatBoostClassifier
 from sklearn.linear_model import LogisticRegression
 
 
-data = pd.read_csv()
+data = pd.read_csv(r'data\heart.csv') 
 # (data.corr()['output'].sort_values().plot.barh())
 (data.corr()['output'].abs().sort_values().plot.barh())
 # plt.show()
@@ -45,14 +45,6 @@ data = pd.read_csv()
 
 # print(data.isnull().sum()) - no missing data
 
-
-data['oldpeak'] = data['oldpeak'].apply(lambda x: 1 if x > 1.6 else 0)
-data.drop('chol', axis=1, inplace=True)
-data.drop('fbs', axis=1, inplace=True)
-data.drop('restecg', axis=1, inplace=True)
-#print(data.sample(10))
-
-
 # Build a data enhancer
 
 def data_enhance(data):
@@ -61,20 +53,20 @@ def data_enhance(data):
         sex_data = org_data[org_data['sex']==sex]
         age_std = sex_data['age'].std()
         trtbps_std = sex_data['trtbps'].std()
-        #chol_std = sex_data['chol'].std()
+        chol_std = sex_data['chol'].std()
         thalachh_std = sex_data['thalachh'].std()
         oldpeak_std = sex_data['oldpeak'].std()
         for i in org_data[org_data['sex']==sex].index:
             if np.random.randint(2) == 1:
                 org_data['age'].values[i] += age_std/10
                 org_data['trtbps'].values[i] += trtbps_std/10
-                #org_data['chol'].values[i] += chol_std/10
+                org_data['chol'].values[i] += chol_std/10
                 org_data['thalachh'].values[i] += thalachh_std/10
                 org_data['oldpeak'].values[i] += oldpeak_std/10
             else:
                 org_data['age'].values[i] -= age_std/10
                 org_data['trtbps'].values[i] -= trtbps_std/10
-                #org_data['chol'].values[i] -= chol_std/10
+                org_data['chol'].values[i] -= chol_std/10
                 org_data['thalachh'].values[i] -= thalachh_std/10
                 org_data['oldpeak'].values[i] -= oldpeak_std/10
 
@@ -84,8 +76,8 @@ gen = data_enhance(data)
 x = data.drop(['output'], axis=1) # features - train and val data
 y = data['output'] # target
 
-num_vals = ['age', 'trtbps', 'thalachh','oldpeak']
-cat_vals = ['sex', 'cp', 'exng', 'slp', 'caa', 'thall']
+num_vals = ['age', 'trtbps','thalachh', 'chol', 'oldpeak']
+cat_vals = ['sex', 'cp', 'exng', 'slp', 'caa', 'thall', 'restecg', 'fbs']
 x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=0)
 
 # Add enhanced data to 20% of the orig data
@@ -110,13 +102,13 @@ tree_pipe = ColumnTransformer([('num', num_pipeline, num_vals), ('cat', cat_pipe
 # Different classifiers
 classifiers = {
     "Decision Tree": DecisionTreeClassifier(random_state=0),
-    "Random Forest": RandomForestClassifier(random_state=0),
-    "Ada Boost": AdaBoostClassifier(random_state=0),
-    "Extra Trees": ExtraTreesClassifier(random_state=0),
-    "Gradient Boosting": GradientBoostingClassifier(random_state=0),
+    "Random Forest": RandomForestClassifier(random_state=0, n_estimators=100),
+    "Ada Boost": AdaBoostClassifier(random_state=0, n_estimators=100),
+    "Extra Trees": ExtraTreesClassifier(random_state=0, n_estimators=100),
+    "Gradient Boosting": GradientBoostingClassifier(random_state=0, n_estimators=100),
     "XGBoost": XGBClassifier(),
-    "LightGBM": LGBMClassifier(random_state=0),
-    "Catboost": CatBoostClassifier(random_state=0),
+    "LightGBM": LGBMClassifier(random_state=0, n_estimators=100),
+    "Catboost": CatBoostClassifier(random_state=0, n_estimators=100),
     "Logistic Regression": LogisticRegression(random_state=0)
 }
 
@@ -144,18 +136,16 @@ for model_name, model in classifiers.items():
 
 results_order = results.sort_values(by=['Accuracy Score'], ascending=False, ignore_index=True)
 
-def get_inputs():
-    pass
+# print(results_order)
 
-def predictor():
+def predictor(features):
 
     best_model = classifiers.get("Extra Trees")
 
     best_model.fit(x_train, y_train)
 
-    test_pred = best_model.predict(inps)
-    pass
-
+    preds = best_model.predict(features)
+    return preds
 
 
 # STD
@@ -211,36 +201,4 @@ def predictor():
 6              XGBoost       78.688525                77.832244  0.111701
 7        Decision Tree       75.409836                76.416122  0.013963
 8             LightGBM       75.409836                74.891068  0.070812
-"""
-
-# after add feature
-
-"""
-                Model  Accuracy Score  Balanced Accuracy score      Time
-0        Random Forest       91.803279                91.884532  0.255021
-1    Gradient Boosting       91.803279                91.884532  0.137404
-2             Catboost       91.803279                91.884532  3.175197
-3            Ada Boost       90.163934                90.032680  0.147018
-4  Logistic Regression       90.163934                90.032680  0.091564
-5          Extra Trees       88.524590                88.562092  0.207016
-6             LightGBM       88.524590                88.943355  0.102990
-7              XGBoost       86.885246                87.472767  0.156011
-8        Decision Tree       83.606557                83.387800  0.033862
-"""
-
-
-
-# after feature selection
-
-"""
-                Model  Accuracy Score  Balanced Accuracy score      Time
-0  Logistic Regression       91.803279                91.884532  0.039007
-1          Extra Trees       90.163934                90.413943  0.156297
-2    Gradient Boosting       90.163934                90.795207  0.109625
-3             LightGBM       90.163934                90.795207  0.044105
-4             Catboost       90.163934                90.795207  2.726169
-5        Random Forest       86.885246                87.091503  0.219036
-6              XGBoost       86.885246                87.854031  0.113341
-7            Ada Boost       85.245902                86.383442  0.109190
-8        Decision Tree       80.327869                81.590414  0.015628
 """
